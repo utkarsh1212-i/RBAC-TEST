@@ -14,10 +14,10 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Root URL Configuration
-ROOT_URLCONF = 'backend.urls'
+ROOT_URLCONF = 'core.urls'
 
 # Frontend URL Configuration
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://127.0.0.1:3000')
 
 # Application definition
 INSTALLED_APPS = [
@@ -32,9 +32,10 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',  # If you're using CORS
     # Local apps
-    'backend.authentication',
-    'backend.core',
-    'backend.email_service',
+    # 'backend.authentication',
+    'authentication',
+    'core',
+    'email_service',
 ]
 
 # Middleware settings
@@ -76,6 +77,11 @@ DATABASES = {
 # Auth user model
 AUTH_USER_MODEL = 'authentication.User'
 
+# AUTHENTICATION_BACKENDS = [
+# #     'authentication.backends.EmailBackend',  # Custom backend for email-based authentication
+# #     'django.contrib.auth.backends.ModelBackend',  # Default backend for compatibility
+# # ]
+
 # JWT Settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
@@ -89,11 +95,17 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'
-EMAIL_HOST_USER_PASSWORD = 'your-app-password' 
+# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Use environment variable for security
+EMAIL_HOST_USER = 'utkarshui1212@gmail.com'  # Use environment variable for security
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Use app-specific password for Gmail
+EMAIL_HOST_PASSWORD = 'xfmrrvdtgsgqtinj'  # Use app-specific password for Gmail
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# for development mode only 
+# if DEBUG:
+#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
-# ... existing settings ...
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'

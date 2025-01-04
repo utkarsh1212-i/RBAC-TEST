@@ -18,19 +18,19 @@ export function Register() {
     e.preventDefault();
     setError('');
 
-    if (password !== passwordConfirm) {
-      setError('Passwords do not match');
-      return;
-    }
+    // if (password !== passwordConfirm) {
+    //   setError('Passwords do not match');
+    //   return;
+    // }
 
     try {
       await axiosInstance.post('/auth/register/', {
         email,
         password,
-        password_confirm: passwordConfirm,
+        // password_confirm: passwordConfirm,
         username,
-        first_name: firstName,
-        last_name: lastName,
+        // first_name: firstName,
+        // last_name: lastName,
       });
       console.log('Registration successful');
       navigate('/login');
@@ -60,7 +60,7 @@ export function Register() {
             onChange={(e) => setUsername(e.target.value)}
             required
           />
-          <TextInput
+          {/* <TextInput
             label="First Name"
             value={firstName}
             placeholder="Enter your first name"
@@ -73,7 +73,7 @@ export function Register() {
             placeholder="Enter your last name"
             onChange={(e) => setLastName(e.target.value)}
             required
-          />
+          /> */}
           <TextInput
             label="Password"
             type="password"
@@ -82,14 +82,14 @@ export function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <TextInput
+          {/* <TextInput
             label="Confirm Password"
             type="password"
             value={passwordConfirm}
             placeholder="Confirm your password"
             onChange={(e) => setPasswordConfirm(e.target.value)}
             required
-          />
+          /> */}
           <Button type="submit">Register</Button>
         </Stack>
       </form>

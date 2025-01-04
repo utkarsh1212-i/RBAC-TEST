@@ -1,19 +1,82 @@
 from celery import shared_task
-from django.core.mail import send_mail
+from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
+import logging
+from smtplib import SMTPException
 
-@shared_task
-def send_verification_email(user_id):
-    from authentication.models import User
-    user = User.objects.get(id=user_id)
+logger = logging.getLogger(__name__)
+
+@shared_task(
+    bind=True,
+    max_retries=3,  # Maximum number of retry attempts
+    default_retry_delay=5 * 60  # 5 minutes delay between retries
+)
+def send_verification_email(self, user_id):
+    from authentication.models import AppUser
     
-    subject = 'Verify your email'
-    message = f'Click the link to verify your email: {settings.FRONTEND_URL}/verify/{user.verification_token}'
-    
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
-        fail_silently=False,
-    ) 
+    try:
+        # Check for required settings are configured
+        if not all([
+            settings.EMAIL_HOST,
+            settings.EMAIL_PORT,
+            settings.EMAIL_HOST_USER,
+            settings.EMAIL_HOST_PASSWORD,
+            settings.DEFAULT_FROM_EMAIL,
+            settings.FRONTEND_URL
+        ]):
+            raise ValueError("Email settings are not properly configured")
+
+        # Get user
+        user = AppUser.objects.get(id=user_id)
+        if not user:
+            logger.error(f"User with id {user_id} not found")
+            return False
+
+        # Prepare email content
+        subject = 'Verify your email'
+        message = f'''
+        Hello {user.username},
+        
+        Please verify your email by clicking the link below:
+        {settings.FRONTEND_URL}/verify/{user.verification_token}
+        
+        If you didn't register for this account, please ignore this email.
+        
+        Best regards,
+        Your App Team
+        '''
+
+        # Send email
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=['dummyutkarsh@gmail.com'],
+            fail_silently=False,
+        )
+        
+        logger.info(f"Verification email sent successfully to {user.email}")
+        return True
+
+    except AppUser.DoesNotExist:
+        logger.error(f"Failed to send verification email: User {user_id} not found")
+        return False
+        
+    except (SMTPException, BadHeaderError) as e:
+        logger.error(f"SMTP Error while sending email to {user_id}: {str(e)}")
+        # Retry the task
+        raise self.retry(exc=e)
+        
+    except ConnectionRefusedError as e:
+        logger.error(f"Connection refused while sending email: {str(e)}")
+        error_message = (
+            "Email server connection refused. "
+            "Please check your EMAIL_HOST and EMAIL_PORT settings. "
+            f"Current settings: {settings.EMAIL_HOST}:{settings.EMAIL_PORT}"
+        )
+        logger.error(error_message)
+        raise self.retry(exc=e)
+        
+    except Exception as e:
+        logger.error(f"Unexpected error while sending email: {str(e)}")
+        return False

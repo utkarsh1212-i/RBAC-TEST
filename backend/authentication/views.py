@@ -1,97 +1,58 @@
-from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny
-from django.contrib.auth import authenticate
-from .serializers import UserRegistrationSerializer, LoginSerializer, UserSerializer
-from ..email_service.tasks import send_verification_email
-from django.conf import settings
-import logging
-
-logger = logging.getLogger(__name__)
+from rest_framework import status
+from .models import AppUser, Token
+from .serializers import UserRegistrationSerializer, LoginSerializer, UserSerializer, TokenSerializer
 
 class RegisterView(APIView):
-    permission_classes = [AllowAny]
-    
     def post(self, request):
-        try:
-            serializer = UserRegistrationSerializer(data=request.data)
-            if serializer.is_valid():
-                user = serializer.save()
-                
-                # Generate tokens
-                refresh = RefreshToken.for_user(user)
-                tokens = {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                }
-                
-                # Send verification email asynchronously
-                try:
-                    send_verification_email.delay(user.id)
-                except Exception as e:
-                    logger.error(f"Failed to send verification email: {str(e)}")
-                
-                # Prepare response data to send
-                response_data = {
-                    'user': UserSerializer(user).data,
-                    'tokens': tokens,
-                    'message': 'Registration successful. Please verify your email.'
-                }
-                
-                return Response(response_data, status=status.HTTP_201_CREATED)
-            
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
-        except Exception as e:
-            logger.error(f"Registration error: {str(e)}")
-            return Response(
-                {'error': 'An unexpected error occurred during registration.'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            token = Token.objects.create(user=user)
+            return Response({
+                'user': UserSerializer(user).data,
+                'message': 'Registration successful.'
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class LoginView(APIView):
-    permission_classes = [AllowAny]
-    
     def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            token, _ = Token.objects.get_or_create(user=user)
+            token.refresh_tokens()
+            return Response({
+                'user': UserSerializer(user).data,
+                'tokens': TokenSerializer(token).data,
+                'message': 'Login successful.'
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+
+class LogoutView(APIView):
+    def post(self, request):
+        refresh_token = request.data.get('refresh_token')
+        
+        if not refresh_token:
+            return Response({'error': 'Refresh token is required to logout.'}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
-            serializer = LoginSerializer(data=request.data)
-            if serializer.is_valid():
-                email = serializer.validated_data['email']
-                password = serializer.validated_data['password']
-                
-                user = authenticate(request, email=email, password=password)
-                
-                if not user:
-                    return Response(
-                        {'error': 'Invalid credentials'},
-                        status=status.HTTP_401_UNAUTHORIZED
-                    )
-                
-                if not user.is_email_verified:
-                    return Response(
-                        {'error': 'Please verify your email before logging in.'},
-                        status=status.HTTP_403_FORBIDDEN
-                    )
-                
-                refresh = RefreshToken.for_user(user)
-                response_data = {
-                    'user': UserSerializer(user).data,
-                    'tokens': {
-                        'refresh': str(refresh),
-                        'access': str(refresh.access_token),
-                    },
-                    'message': 'Login successful'
-                }
-                
-                return Response(response_data, status=status.HTTP_200_OK)
+            token = Token.objects.get(refresh_token=refresh_token)
+            # Invalidate tokens by generating new ones
+            token.refresh_token = uuid.uuid4()
+            token.access_token = uuid.uuid4()
+            token.save()
             
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
-        except Exception as e:
-            logger.error(f"Login error: {str(e)}")
-            return Response(
-                {'error': 'An unexpected error occurred during login.'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            ) 
+            return Response({'message': 'Logout successful.'}, status=status.HTTP_200_OK)
+        except Token.DoesNotExist:
+            return Response({'error': 'Invalid refresh token.'}, status=status.HTTP_404_NOT_FOUND)
+
+class UserDetailView(APIView):
+    def get(self, request, user_id):
+        try:
+            user = AppUser.objects.get(id=user_id)
+            return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        except AppUser.DoesNotExist:
+            return Response({'error': 'AppUser not found'}, status=status.HTTP_404_NOT_FOUND)
