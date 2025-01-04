@@ -26,9 +26,15 @@ export function Login() {
     //   localStorage.setItem('refreshToken', response.data.tokens.refresh_token);
       
       // Store user data if needed
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      navigate('/home');
+      const userData = response.data.user;
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('userRole', userData?.role);
+
+      if (userData.can_access_admin) {
+        navigate('/admin-panel');
+      } else {
+        navigate('/home');
+      }
     } catch (error: any) {
       console.error('Login failed:', error);
       setError(

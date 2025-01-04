@@ -19,9 +19,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-# class LoginSerializer(serializers.Serializer):
-#     email = serializers.EmailField()
-#     password = serializers.CharField(style={'input_type': 'password'}, trim_whitespace=False, required=True)
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -32,8 +29,8 @@ class LoginSerializer(serializers.Serializer):
             if user.check_password(data['password']):
                 return {'user': user}
             raise serializers.ValidationError("Invalid password.")
-        except User.DoesNotExist:
-            raise serializers.ValidationError("User not found.")
+        except AppUser.DoesNotExist:
+            raise serializers.ValidationError("Email Does not exist")
 
 
 class TokenSerializer(serializers.ModelSerializer):
@@ -46,4 +43,5 @@ class TokenSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppUser
-        fields = ['id', 'email', 'username', 'is_email_verified']
+        fields = ['id', 'email', 'username', 'role', 'can_access_admin', 'is_email_verified']
+        read_only_fields = ['can_access_admin']

@@ -20,11 +20,28 @@ class User(AbstractUser):
 
 
 class AppUser(models.Model):
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('user', 'User'),
+    ]
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
     password = models.CharField(max_length=255)
     is_email_verified = models.BooleanField(default=False)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
 
+    # Permissions for Admin & User Role to access the Dashboard or not
+    can_access_admin = models.BooleanField(default=False)
+
+
+    def save(self, *args, **kwargs):
+        self.can_access_admin = (self.role == 'admin')
+        
+        super().save(*args, **kwargs)
+
+    def has_access_admin(self):
+        return self.can_access_admin
+    
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
         self.save()
@@ -33,7 +50,7 @@ class AppUser(models.Model):
         return check_password(raw_password, self.password)
 
     def __str__(self):
-        return f"{self.username} ({self.email})"
+        return f"{self.username} ({self.email}) - {self.role}"
 
 
 class Token(models.Model):

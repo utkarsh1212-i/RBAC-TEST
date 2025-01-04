@@ -1,12 +1,26 @@
 import { Navigate } from 'react-router-dom';
 import React from 'react';
+import { useAuth } from '../context/AuthContext';
+import AdminDashboard from './AdminDashboard';
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const token = localStorage.getItem('accessToken');
+interface ProtectedRouteProps {
+    children: React.ReactNode;
+    requireAdmin?: boolean;
+}
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
+    const token = localStorage.getItem('accessToken');
+    const { userRole, isAdmin } = useAuth();
 
-  return <>{children}</>;
+
+    if (!token || !userRole) {
+        return <Navigate to="/login" replace />;
+    }
+    if (requireAdmin && !isAdmin) {
+        // Not an admin, but trying to access admin route
+        // return <Navigate to="/home" replace />;
+        return <AdminDashboard />;
+    }
+
+    return <>{children}</>;
 } 

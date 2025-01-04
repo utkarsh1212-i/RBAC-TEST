@@ -7,6 +7,8 @@ export function Home() {
 
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userRole');
     navigate('/login');
   };
 

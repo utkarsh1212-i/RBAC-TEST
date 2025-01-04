@@ -36,7 +36,7 @@ export function Register() {
       navigate('/login');
     } catch (error: any) {
       console.error('Registration failed:', error);
-      setError(error.response?.data?.error || 'Registration failed');
+      setError(error.response?.data?.error || error.response?.data?.message || 'Registration failed');
     }
   };
 
@@ -91,6 +91,21 @@ export function Register() {
             required
           /> */}
           <Button type="submit">Register</Button>
+          <Text size="sm">
+            Already a User?{' '}
+            <Text
+              component="a"
+              href="/login"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/login');
+              }}
+              style={{ cursor: 'pointer' }}
+              color="blue"
+            >
+              Login here
+            </Text>
+          </Text>
         </Stack>
       </form>
     </Paper>

@@ -1,8 +1,10 @@
+import uuid
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import AppUser, Token
 from .serializers import UserRegistrationSerializer, LoginSerializer, UserSerializer, TokenSerializer
+from decorators import admin_required
 
 class RegisterView(APIView):
     def post(self, request):
@@ -14,7 +16,9 @@ class RegisterView(APIView):
                 'user': UserSerializer(user).data,
                 'message': 'Registration successful.'
             }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+             #  to Extract the first error message from serializer.errors
+        error_message = next(iter(serializer.errors.values()))[0]
+        return Response({'message': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
@@ -29,7 +33,9 @@ class LoginView(APIView):
                 'tokens': TokenSerializer(token).data,
                 'message': 'Login successful.'
             }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+             # to Extract the first error message from serializer.errors
+        error_message = next(iter(serializer.errors.values()))[0]
+        return Response({'message': error_message}, status=status.HTTP_401_UNAUTHORIZED)
 
 class LogoutView(APIView):
     def post(self, request):
@@ -56,3 +62,10 @@ class UserDetailView(APIView):
             return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
         except AppUser.DoesNotExist:
             return Response({'error': 'AppUser not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class ProtectedView(APIView):
+    @admin_required
+    def get(self, request):
+        return Response({
+            'message': 'Welcome to the Admin Dashboard'},
+            status=status.HTTP_200_OK)
