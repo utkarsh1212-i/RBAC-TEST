@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextInput, Button, Paper, Title, Stack, Text } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../utils/axios';
+import { useAuth } from '../context/AuthContext';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -9,6 +10,11 @@ export function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const token = localStorage.getItem('accessToken');
+
+  if (token) {
+    navigate('/home');
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +28,7 @@ export function Login() {
       });
 
       // Store the tokens
-      localStorage.setItem('accessToken', response.data.tokens.access_token);
+      localStorage.setItem('accessToken', response.data.access_token);
     //   localStorage.setItem('refreshToken', response.data.tokens.refresh_token);
       
       // Store user data if needed
@@ -75,6 +81,20 @@ export function Login() {
             error={error && !password ? 'Password is required' : null}
             required
           />
+          <Text size="sm" align="right">
+            <Text
+              component="a"
+              href="/reset-password"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/forgot-password');
+              }}
+              style={{ cursor: 'pointer' }}
+              color="blue"
+            >
+              Forgot Password?
+            </Text>
+          </Text>
           <Button 
             type="submit" 
             loading={loading}

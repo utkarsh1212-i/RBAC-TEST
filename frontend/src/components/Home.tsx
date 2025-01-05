@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Title, Button, Flex } from '@mantine/core';
+import { Paper, Title, Button, Flex, Group } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 
 export function Home() {
@@ -20,7 +20,17 @@ export function Home() {
         justify={{ sm: 'space-between' }}
       >
         <Title order={2}>Welcome to Dashboard</Title>
-        <Button onClick={handleLogout}>Logout</Button>
+        <Group>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/change-password')}
+          >
+            Change Password
+          </Button>
+          <Button onClick={handleLogout}>
+            Logout
+          </Button>
+        </Group>
       </Flex>
     </Paper>
   );

@@ -8,8 +8,13 @@ import { Home } from './components/Home'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AuthProvider } from './context/AuthContext'
 import AdminDashboard from './components/AdminDashboard'
-import NotFound from './components/NotFound' 
+import NotFound from './components/NotFound'
 import { EmailVerification } from './components/EmailVerification'
+import { RegisterSuccess } from './components/RegisterSuccess'
+import { ChangePassword } from './components/ChangePassword'
+import { ResetPassword } from './components/ResetPassword'
+import { PrivateRoute } from './components/PrivateRoute'
+import { ResetPasswordLink } from './components/ResetPasswordLink'
 
 function App() {
   return (
@@ -21,17 +26,25 @@ function App() {
           // colorScheme: 'dark',
           // You can customize your theme here
           primaryColor: 'blue',
-        fontFamily: 'Open Sans, sans-serif',
-      }}>
-        
+          fontFamily: 'Open Sans, sans-serif',
+        }}>
+
         <Router>
           <Routes>
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<PrivateRoute>
+              <Register />
+            </PrivateRoute>} />
+            <Route path="/register-success" element={<RegisterSuccess />} />
+            <Route path="/login" element={<PrivateRoute>
+              <Login />
+            </PrivateRoute>} />
             <Route path="/verify/:token" element={<EmailVerification />} />
+            <Route path="/change-password" element={<ChangePassword />} />
+            <Route path="/forgot-password" element={<ResetPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPasswordLink />} />
             <Route
               path="/admin-panel"
-            element={
+              element={
                 <ProtectedRoute requireAdmin={true}>
                   <AdminDashboard />
                 </ProtectedRoute>
@@ -40,7 +53,9 @@ function App() {
             <Route
               path="/home"
               element={
+                <PrivateRoute>
                   <Home />
+                </PrivateRoute>
               }
             />
             <Route path="/" element={<Navigate to="/login" replace />} />

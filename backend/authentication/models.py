@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import uuid
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.hashers import make_password, check_password
 
@@ -30,8 +31,21 @@ class AppUser(models.Model):
     is_email_verified = models.BooleanField(default=False)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     verification_token = models.UUIDField(default=uuid.uuid4)
+    reset_password_token = models.UUIDField(default=uuid.uuid4)
     # Permissions for Admin & User Role to access the Dashboard or not
     can_access_admin = models.BooleanField(default=False)
+    
+    refresh_token = models.TextField(default='')
+    access_token = models.TextField(default='')
+    reset_password_token = models.UUIDField(null=True, blank=True)
+    # created_at = models.DateTimeField(auto_now_add=True)
+    
+    
+    def refresh_tokens(self):
+        refresh = RefreshToken.for_user(self.user)
+        self.refresh_token = str(refresh)
+        self.access_token = str(refresh.access_token)
+        self.save()
 
 
 
@@ -56,14 +70,15 @@ class AppUser(models.Model):
 
 
 class Token(models.Model):
-    user = models.OneToOneField(AppUser, on_delete=models.CASCADE, related_name='token')
-    refresh_token = models.UUIDField(default=uuid.uuid4, editable=False)
-    access_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(AppUser, on_delete=models.CASCADE, related_name='token', default='')
+    refresh_token = models.TextField()
+    access_token = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def refresh_tokens(self):
-        self.refresh_token = uuid.uuid4()
-        self.access_token = uuid.uuid4()
+        refresh = RefreshToken.for_user(self.user)
+        self.refresh_token = str(refresh)
+        self.access_token = str(refresh.access_token)
         self.save()
 
     def __str__(self):

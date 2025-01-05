@@ -29,7 +29,7 @@ export function Register() {
         // last_name: lastName,
       });
       console.log('Registration successful');
-      navigate('/login');
+      navigate('/register-success', { state: { email } });
     } catch (error: any) {
       console.error('Registration failed:', error);
       setError(error.response?.data?.error || error.response?.data?.message || 'Registration failed');

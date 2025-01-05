@@ -16,12 +16,6 @@ def send_verification_email(self, user_id):
     
     try:
         # Check for required settings are configured
-        print("EMAIL Settings:::::" ,  settings.EMAIL_HOST,
-            settings.EMAIL_PORT,
-            settings.EMAIL_HOST_USER,
-            settings.EMAIL_HOST_PASSWORD,
-            settings.DEFAULT_FROM_EMAIL,
-            settings.FRONTEND_URL)
         if not all([
             settings.EMAIL_HOST,
             settings.EMAIL_PORT,
@@ -86,3 +80,47 @@ def send_verification_email(self, user_id):
     except Exception as e:
         logger.error(f"Unexpected error while sending email: {str(e)}")
         return False
+
+
+@shared_task(
+    bind=True,
+    max_retries=3,
+    default_retry_delay=5 * 60
+)
+def send_reset_password_email(self, user_id, reset_token):
+    from authentication.models import AppUser
+    
+    try:
+        user = AppUser.objects.get(id=user_id)
+        print(user, reset_token, "RESET")
+        
+        subject = 'Reset Your Password'
+        message = f'''
+        Hello {user.username},
+        
+        You requested to reset your password. Click the link below to set a new password:
+        {settings.FRONTEND_URL}/reset-password/{reset_token}
+        
+        If you didn't request this, please ignore this email.
+        
+        Best regards,
+        
+        '''
+
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=['dummyutkarsh@gmail.com'],
+            fail_silently=False,
+        )
+        
+        logger.info(f"Password reset email sent to {user.email}")
+        return True
+
+    except AppUser.DoesNotExist:
+        logger.error(f"Failed to send reset email: User {user_id} not found")
+        return False
+    except Exception as e:
+        logger.error(f"Error sending reset email: {str(e)}")
+        raise self.retry(exc=e)
