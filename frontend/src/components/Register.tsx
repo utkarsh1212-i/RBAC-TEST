@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextInput, Button, Paper, Title, Stack, Text } from '@mantine/core';
+import { TextInput, Button, Paper, Title, Stack, Text, Select } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../utils/axios';
 
@@ -11,24 +11,20 @@ export function Register() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [error, setError] = useState('');
+  const [role, setRole] = useState('');
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    // if (password !== passwordConfirm) {
-    //   setError('Passwords do not match');
-    //   return;
-    // }
-
     try {
       await axiosInstance.post('/auth/register/', {
         email,
         password,
         // password_confirm: passwordConfirm,
         username,
+        role
         // first_name: firstName,
         // last_name: lastName,
       });
@@ -41,8 +37,8 @@ export function Register() {
   };
 
   return (
-    <Paper p="lg" radius="md">
-      <Title order={2} mb="md">Register</Title>
+    <Paper p="lg" m="auto" radius="md" w="30%">
+      <Title order={2} mb="md" content='center'>Register</Title>
       {error && <Text color="red" mb="md">{error}</Text>}
       <form onSubmit={handleSubmit}>
         <Stack w="100%">
@@ -82,14 +78,13 @@ export function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          {/* <TextInput
-            label="Confirm Password"
-            type="password"
-            value={passwordConfirm}
-            placeholder="Confirm your password"
-            onChange={(e) => setPasswordConfirm(e.target.value)}
+          <Select
+            label="Role"
+            value={role}
+            data={['user', 'admin']}
+            onChange={(value) => setRole(value || '')}
             required
-          /> */}
+          />
           <Button type="submit">Register</Button>
           <Text size="sm">
             Already a User?{' '}

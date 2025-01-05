@@ -30,11 +30,12 @@ export function Login() {
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('userRole', userData?.role);
 
-      if (userData.can_access_admin) {
-        navigate('/admin-panel');
-      } else {
-        navigate('/home');
-      }
+      // if (userData.can_access_admin) {
+      //   navigate('/admin-panel');
+      // } else {
+      //   navigate('/home');
+      // }
+      navigate('/home');
     } catch (error: any) {
       console.error('Login failed:', error);
       setError(
@@ -48,7 +49,7 @@ export function Login() {
   };
 
   return (
-    <Paper p="lg" radius="md">
+    <Paper p="lg" radius="md" m="auto" w="30%">
       <Title order={2} mb="md">Login</Title>
       {error && (
         <Text color="red" mb="md" size="sm">

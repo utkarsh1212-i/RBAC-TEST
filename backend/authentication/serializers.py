@@ -5,15 +5,17 @@ from django.contrib.auth import authenticate
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    role = serializers.ChoiceField(choices=AppUser.ROLE_CHOICES)
 
     class Meta:
         model = AppUser
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'username', 'password', 'role']
 
     def create(self, validated_data):
         user = AppUser(
             email=validated_data['email'],
             username=validated_data['username'],
+            role=validated_data['role']
         )
         user.set_password(validated_data['password'])
         user.save()

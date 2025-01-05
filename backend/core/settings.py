@@ -17,7 +17,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 ROOT_URLCONF = 'core.urls'
 
 # Frontend URL Configuration
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://127.0.0.1:3000')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 # Application definition
 INSTALLED_APPS = [
@@ -78,11 +78,6 @@ DATABASES = {
 # Auth user model
 AUTH_USER_MODEL = 'authentication.User'
 
-# AUTHENTICATION_BACKENDS = [
-# #     'authentication.backends.EmailBackend',  # Custom backend for email-based authentication
-# #     'django.contrib.auth.backends.ModelBackend',  # Default backend for compatibility
-# # ]
-
 # JWT Settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
@@ -96,8 +91,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Use environment variable for security
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Use app-specific password for Gmail
+EMAIL_HOST_USER = 'utkarshui1212@gmail.com'  # Use environment variable for security
+EMAIL_HOST_PASSWORD = 'xfmr rvdt gsgq tinj'  # Use app-specific password for Gmail
+# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Use environment variable for security
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Use app-specific password for Gmail
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
@@ -120,9 +117,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
+        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.renderers.BrowsableAPIRenderer',
     )
 }
 
@@ -141,3 +141,10 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

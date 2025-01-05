@@ -1,10 +1,13 @@
 import uuid
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from .models import AppUser, Token
 from .serializers import UserRegistrationSerializer, LoginSerializer, UserSerializer, TokenSerializer
 from decorators import admin_required
+from email_service.tasks import send_verification_email
 
 class RegisterView(APIView):
     def post(self, request):
@@ -12,6 +15,10 @@ class RegisterView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             token = Token.objects.create(user=user)
+
+            print(f"User: {user}")
+
+            send_verification_email.delay(user.id)
             return Response({
                 'user': UserSerializer(user).data,
                 'message': 'Registration successful.'
@@ -64,8 +71,38 @@ class UserDetailView(APIView):
             return Response({'error': 'AppUser not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class ProtectedView(APIView):
+    # permission_classes = [IsAuthenticated]
     @admin_required
     def get(self, request):
+        print(f"User: {request.user}, Authenticated: {request.user.is_authenticated}")
         return Response({
             'message': 'Welcome to the Admin Dashboard'},
             status=status.HTTP_200_OK)
+    
+
+class VerifyEmailView(APIView):
+    # renderer_classes = [JSONRenderer]
+    def get(self, request, token):
+        try:
+            user = AppUser.objects.get(verification_token=token)
+            print(f"UserAUTH: {user}")
+            
+            if user.is_email_verified:
+                return Response({
+                    'message': 'Email already verified',
+                    'redirect': '/login'
+                }, status=status.HTTP_200_OK)
+
+            user.is_email_verified = True
+            user.save()
+
+            return Response({
+                'message': 'Email verified successfully',
+                'redirect': '/login'
+            }, status=status.HTTP_200_OK)
+
+        except AppUser.DoesNotExist:
+            return Response({
+                'error': 'Invalid verification token',
+                'redirect': '/login'
+            }, status=status.HTTP_400_BAD_REQUEST)

@@ -16,6 +16,12 @@ def send_verification_email(self, user_id):
     
     try:
         # Check for required settings are configured
+        print("EMAIL Settings:::::" ,  settings.EMAIL_HOST,
+            settings.EMAIL_PORT,
+            settings.EMAIL_HOST_USER,
+            settings.EMAIL_HOST_PASSWORD,
+            settings.DEFAULT_FROM_EMAIL,
+            settings.FRONTEND_URL)
         if not all([
             settings.EMAIL_HOST,
             settings.EMAIL_PORT,

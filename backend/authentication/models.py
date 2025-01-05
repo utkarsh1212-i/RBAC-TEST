@@ -28,10 +28,12 @@ class AppUser(models.Model):
     username = models.CharField(max_length=150, unique=True)
     password = models.CharField(max_length=255)
     is_email_verified = models.BooleanField(default=False)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
-
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    verification_token = models.UUIDField(default=uuid.uuid4)
     # Permissions for Admin & User Role to access the Dashboard or not
     can_access_admin = models.BooleanField(default=False)
+
+
 
 
     def save(self, *args, **kwargs):

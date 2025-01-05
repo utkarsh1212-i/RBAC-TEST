@@ -9,16 +9,12 @@ def admin_required(view_func):
             user = request.user
 
             #check if user is authenticated
-            if not user.is_authenticated or not hasattr(user, 'has_access_admin') or not user.has_access_admin():
+            print(f"User: {request.user}, Authenticated: {request.user.is_authenticated}")
+            if isinstance(user, AnonymousUser)  or not hasattr(user, 'has_access_admin') or not user.has_access_admin():
                 return Response(
                     {'error': 'Permission denied, Admin Access Required'},
                     status=status.HTTP_403_FORBIDDEN
                 )
-            # if not request.user.has_access_admin():
-            #     return Response(
-            #         {'error': 'Permission denied, Admin Access Required'},
-            #         status=status.HTTP_403_FORBIDDEN
-            #     )
-            # return view_func(self, request, *args, **kwargs)
+            return view_func(self, request, *args, **kwargs)
         return wrapped_view
        
