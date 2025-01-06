@@ -202,7 +202,7 @@ EMAIL_HOST_PASSWORD=your-email-password
 ## Folder Structure
 
 ```
-backend/
+RBAC-TEST/
 |-- backend/
 |   |-- core/
 |   |-- authentication/
