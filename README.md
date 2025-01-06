@@ -40,8 +40,8 @@ Ensure you have the following installed on your system:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-repo/project-name.git
-   cd project-name
+   git clone https://github.com/your-repo/RBAC-TEST.git
+   cd RBAC-TEST
    ```
 
 2. **Navigate to the backend directory**:
@@ -144,29 +144,20 @@ Ensure you have the following installed on your system:
 
 ## Environment Variables
 
-Create a `.env` file in the `backend` directory with the following content:
+Create a `.env` file in the `backend` directory with the keys from .env.sample (provided):
 
 ```env
-# Django Settings
-SECRET_KEY=your_django_secret_key
-DEBUG=True
-ALLOWED_HOSTS=*
-SERVER_URL=
+#email
+EMAIL_HOST_USER=your_host_user
+EMAIL_HOST_PASSWORD=your_host_password
 
-# Redis
-REDIS_URL=redis://localhost:6379/0
-
-# Celery
+#Celery
 CELERY_BROKER_URL=redis://localhost:6379/0
 CELERY_RESULT_BACKEND=redis://localhost:6379/0
 
-# Email Settings
-EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=smtp.your-email-provider.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=your-email@example.com
-EMAIL_HOST_PASSWORD=your-email-password
+FRONTEND_URL='your-production-url-frontned'
+ALLOWED_HOSTS='Array of allowed hosts'
+SECRET_KEY=your-secret-key-here
 ```
 
 ---
@@ -206,7 +197,9 @@ RBAC-TEST/
 |-- backend/
 |   |-- core/
 |   |-- authentication/
+|   |-- email_service/
 |   |-- manage.py
+|   |-- decorators.py
 |   |-- requirements.txt
 |   `-- ...
 |
