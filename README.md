@@ -133,7 +133,7 @@ Ensure you have the following installed on your system:
    redis-server
    ```
 
-#### Option 2: Use Docker
+#### Option 2: Use Docker (Preferably)
 
 1. **Run Redis in a Docker container**:
    ```bash
@@ -151,6 +151,7 @@ Create a `.env` file in the `backend` directory with the following content:
 SECRET_KEY=your_django_secret_key
 DEBUG=True
 ALLOWED_HOSTS=*
+SERVER_URL=
 
 # Redis
 REDIS_URL=redis://localhost:6379/0
