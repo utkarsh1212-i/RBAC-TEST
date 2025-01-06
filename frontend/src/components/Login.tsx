@@ -81,7 +81,7 @@ export function Login() {
             error={error && !password ? 'Password is required' : null}
             required
           />
-          <Text size="sm" align="right">
+          <Text size="sm">
             <Text
               component="a"
               href="/reset-password"

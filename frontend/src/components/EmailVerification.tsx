@@ -42,16 +42,16 @@ export function EmailVerification() {
               {message}
             </Text>
             <Loader size="sm" mx="auto" />
-            <Text align="center" size="sm" color="dimmed" mt="md">
+            <Text  size="sm" color="dimmed" mt="md">
               You will be redirected to login page shortly...
             </Text>
           </>
         ) : (
           <>
-            <Text align="center" size="xl" color="red" mb="md">
+            <Text  size="xl" color="red" mb="md">
               {error}
             </Text>
-            <Text align="center" size="sm" color="dimmed">
+            <Text  size="sm" color="dimmed">
               Redirecting to login page...
             </Text>
           </>

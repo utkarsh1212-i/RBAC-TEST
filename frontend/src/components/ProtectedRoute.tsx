@@ -11,7 +11,6 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
     const token = localStorage.getItem('accessToken');
     const { userRole, isAdmin } = useAuth();
-    console.log(token , userRole);
 
 
     if (!token || !userRole) {

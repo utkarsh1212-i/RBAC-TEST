@@ -39,7 +39,7 @@ export function ResetPasswordLink() {
     <Container size="sm">
       <Paper shadow="sm" p="xl" mt="xl">
         <form onSubmit={handleSubmit}>
-          <Text size="xl" mb="md" align="center">
+          <Text size="xl" mb="md" ta="center">
             Reset Your Password
           </Text>
           

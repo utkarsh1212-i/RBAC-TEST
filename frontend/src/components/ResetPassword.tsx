@@ -34,16 +34,16 @@ export function ResetPassword() {
   return (
     <Container size="xs">
       <Paper p="xl" radius="md" mt="xl">
-        <Title order={2} mb="lg" align="center">Reset Password</Title>
+        <Title order={2} mb="lg" ta="center">Reset Password</Title>
         
         {message && (
-          <Text color="green" mb="md" align="center">
+          <Text color="green" mb="md" ta="center">
             {message}
           </Text>
         )}
         
         {error && (
-          <Text color="red" mb="md" align="center">
+          <Text color="red" mb="md" ta="center">
             {error}
           </Text>
         )}
@@ -66,7 +66,7 @@ export function ResetPassword() {
               Send Reset Mail
             </Button>
 
-            <Text size="sm" align="center">
+            <Text size="sm" ta="center">
               Remember your password?{' '}
               <Text
                 component="a"

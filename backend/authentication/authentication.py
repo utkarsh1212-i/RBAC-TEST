@@ -22,6 +22,6 @@ class TokenAuthentication(BaseAuthentication):
     def authenticate_header(self, request):
         return 'Bearer'
 
-class IsAuthenticated(BasePermission):
+class IsAuthenticatedToken(BasePermission):
     def has_permission(self, request, view):
         return bool(request.user and request.auth) 

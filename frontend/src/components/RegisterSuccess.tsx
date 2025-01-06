@@ -17,19 +17,19 @@ export function RegisterSuccess() {
   return (
     <Container size="sm" mt="xl">
       <Paper shadow="md" p="xl" radius="md">
-        <Stack align="center" spacing="lg">
+        <Stack align="center" gap="lg">
           {/* <IconMailCheck size={50} color="green" /> */}
           
-          <Text size="xl" weight={500} align="center">
+          <Text size="xl" fw={500} ta="center">
             Registration Successful!
           </Text>
           
-          <Text align="center" color="dimmed">
+          <Text ta="center" color="dimmed">
             We've sent a verification email to:
-            <Text weight={500} mt={4}>{email}</Text>
+            <Text fw={500} mt={4}>{email}</Text>
           </Text>
           
-          <Text size="sm" color="dimmed" align="center">
+          <Text size="sm" color="dimmed" ta="center">
             Please check your inbox and click the verification link to activate your account.
           </Text>
 

@@ -98,7 +98,7 @@ export function ChangePassword() {
                             Change Password
                         </Button>
 
-                        <Text size="sm" align="center">
+                        <Text size="sm">
                             <Text
                                 component="a"
                                 href="/login"

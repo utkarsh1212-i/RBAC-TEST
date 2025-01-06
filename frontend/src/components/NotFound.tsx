@@ -39,6 +39,7 @@ function NotFound() {
         <Title order={1}>404 - Page Not Found</Title>
         <Text size="lg">
           Oops! The page you're looking for doesn't exist.
+          We Are Building This Page. Please Check Back Later.
         </Text>
         <Text size="md">
           You will be automatically redirected to {userRole ? (userRole === 'admin' ? 'admin dashboard' : 'home') : 'login'} in {seconds} seconds...

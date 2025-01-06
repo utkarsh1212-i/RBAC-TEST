@@ -9,9 +9,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Basic Django settings
-SECRET_KEY = 'your-secret-key-here'  # Replace with a secure secret key
+SECRET_KEY = os.environ.get('SECRET_KEY')  # Replace with a secure secret key
 DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS')
 
 # Root URL Configuration
 ROOT_URLCONF = 'core.urls'
@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',  # If you're using CORS
+    'drf_yasg',
     # Local apps
     # 'backend.authentication',
     'authentication',
@@ -114,12 +115,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Add REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'authentication.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.permissions.IsAuthenticated',
         'rest_framework.renderers.BrowsableAPIRenderer',
     )
 }
@@ -141,8 +143,8 @@ LOGGING = {
 }
 
 # Celery Configuration
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
